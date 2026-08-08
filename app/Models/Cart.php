@@ -1,0 +1,18 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Model;
+
+
+#[Fillable(['user_id', 'session_id'])]
+class Cart extends Model
+{
+
+
+    public function items()
+    {
+        return $this->hasMany(CartItem::class);
+    }
+}
