@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('order_id')->constrained()->onDelete('cascade');
             $table->foreignId('product_variant_id')->constrained()->onDelete('cascade');
             $table->unsignedInteger('quantity')->default(1);
-            $table->string('product_name');//snapshot of the product name at the time of order
-            $table->decimal('unit_price', 10, 2);//snapshot of the product price
+            $table->string('product_name'); // snapshot of the product name at the time of order
+            $table->decimal('unit_price', 10, 2); // snapshot of the product price
             $table->timestamps();
         });
     }

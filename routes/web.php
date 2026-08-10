@@ -10,9 +10,6 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 
-
-
-
 Route::get('/', [ProductController::class, 'index'])->name('shop.index');
 Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('shop.product.show');
 
@@ -26,7 +23,6 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/orders', [OrderController::class, 'index']);
     Route::get('/orders/{order}', [OrderController::class, 'show']);
 });
-
 Route::middleware(['auth', 'can:admin'])->prefix('admin')->group(function () {
     Route::resource('products', AdminProductController::class);
     Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
@@ -36,4 +32,4 @@ Route::middleware(['auth', 'can:admin'])->prefix('admin')->group(function () {
 
 Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle']);
 
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';

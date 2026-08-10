@@ -19,6 +19,11 @@ declare module '@inertiajs/core' {
             name: string;
             auth: Auth;
             sidebarOpen: boolean;
+            cartCount?: number;
+            flash:{
+                success?:string,
+                error?:string
+            }
             [key: string]: unknown;
         };
     }
@@ -31,3 +36,4 @@ declare module 'vue' {
         $headManager: ReturnType<typeof createHeadManager>;
     }
 }
+
