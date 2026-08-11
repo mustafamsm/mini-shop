@@ -10,7 +10,7 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StripeWebhookController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', [ProductController::class, 'index'])->name('shop.index');
+Route::get('/', [ProductController::class, 'index'])->name('home');
 Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('shop.product.show');
 
 Route::post('/cart/items', [CartController::class, 'store'])->name('cart.store');

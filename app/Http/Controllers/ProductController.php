@@ -21,7 +21,7 @@ class ProductController extends Controller
             ->paginate(12)
             ->withQueryString();
 
-        return Inertia::render('Shop/Index', [
+        return Inertia::render('Shop/index', [
             'products' => $products,
             'categories' => Category::whereNull('parent_id')->get(),
             'search' => $request->search,
