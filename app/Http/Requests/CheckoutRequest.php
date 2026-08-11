@@ -12,7 +12,7 @@ class CheckoutRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return false;
+        return true;
     }
 
     /**
@@ -23,7 +23,7 @@ class CheckoutRequest extends FormRequest
     public function rules(): array
     {
         return [
-            //
+            'address_id'=>['required','exists:addresses,id']
         ];
     }
 }

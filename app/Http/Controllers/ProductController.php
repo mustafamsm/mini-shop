@@ -11,7 +11,7 @@ class ProductController extends Controller
 {
     public function index(Request $request)
     {
-        
+
         $products = Product::query()
             ->with(['images', 'variants'])
             ->where('is_active', true)
@@ -23,9 +23,16 @@ class ProductController extends Controller
 
         return Inertia::render('Shop/Index', [
             'products' => $products,
-            'category' => Category::whereNull('parent_id')->get(),
+            'categories' => Category::whereNull('parent_id')->get(),
             'search' => $request->search,
+            'filters'=>$request->only('category')
         ]);
 
+
+    }
+
+    public function show(Product $product){
+        $product->load(['images','variants','cateogy']);
+        return  Inertia::render('shop/show',['product'=>$product]);
     }
 }

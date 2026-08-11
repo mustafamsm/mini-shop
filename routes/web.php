@@ -13,15 +13,15 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', [ProductController::class, 'index'])->name('shop.index');
 Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name('shop.product.show');
 
-Route::post('/cart/items', [CartController::class, 'store']);
-Route::put('/cart/items/{cartItem}', [CartController::class, 'update']);
-Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy']);
+Route::post('/cart/items', [CartController::class, 'store'])->name('cart.store');
+Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
+Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy'])->name('cart.destroy');
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('/checkout', [CheckoutController::class, 'index']);
-    Route::post('/checkout', [CheckoutController::class, 'store']);
-    Route::get('/orders', [OrderController::class, 'index']);
-    Route::get('/orders/{order}', [OrderController::class, 'show']);
+    Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
+    Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
+    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
 });
 Route::middleware(['auth', 'can:admin'])->prefix('admin')->group(function () {
     Route::resource('products', AdminProductController::class);
@@ -32,4 +32,4 @@ Route::middleware(['auth', 'can:admin'])->prefix('admin')->group(function () {
 
 Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle']);
 
-require __DIR__.'/settings.php';
+require __DIR__ . '/settings.php';
