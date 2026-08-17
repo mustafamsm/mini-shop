@@ -15,7 +15,7 @@ class ProductController extends Controller
         $products = Product::query()
             ->with(['images', 'variants'])
             ->where('is_active', true)
-            ->when($request->category, fn ($q, $slug) => $q->wherHas('category', fn ($q2) => $q->where('slug', $slug))
+            ->when($request->category, fn ($q, $slug) => $q->whereHas('category', fn ($q2) => $q2->where('slug', $slug))
             )->when($request->search, fn ($q, $search) => $q->where('name', 'like', "%{$search}%")
             )->latest()
             ->paginate(12)
@@ -32,7 +32,7 @@ class ProductController extends Controller
     }
 
     public function show(Product $product){
-        $product->load(['images','variants','cateogy']);
-        return  Inertia::render('shop/show',['product'=>$product]);
+        $product->load(['images','variants','category']);
+        return  Inertia::render('Shop/Show',['product'=>$product]);
     }
 }

@@ -12,9 +12,9 @@ class CheckoutController extends Controller
 {
     public function index(Request $request)
     {
-        $cart = Cart::fisrtOrFail(['user_id' => $request->user()->id]);
-        $cart->load('items.productsVariant.product');
-        return Inertia::render('checkout/index', [
+        $cart = Cart::firstOrCreate(['user_id' => $request->user()->id]);
+        $cart->load('items.productVariant.product');
+        return Inertia::render('Checkout/Index', [
             'cart' => $cart,
             'addresses' => $request->user()->addresses
         ]);

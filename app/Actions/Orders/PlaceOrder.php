@@ -15,7 +15,7 @@ class PlaceOrder
     {
         $cart = Cart::where('user_id', $user->id)
             ->with('items.productVariant.product')
-            ->fistOrFail();
+            ->FirstOrFail();
 
 
         if ($cart->items->isEmpty()) {

@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
@@ -16,12 +17,15 @@ Route::get('/products/{product:slug}', [ProductController::class, 'show'])->name
 Route::post('/cart/items', [CartController::class, 'store'])->name('cart.store');
 Route::get('/cart', [CartController::class, 'index'])->name('cart.index');
 Route::delete('/cart/items/{cartItem}', [CartController::class, 'destroy'])->name('cart.destroy');
+Route::patch('/cart/items/{cartItem}', [CartController::class, 'update'])->name('cart.update');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/checkout', [CheckoutController::class, 'index'])->name('checkout.index');
     Route::post('/checkout', [CheckoutController::class, 'store'])->name('checkout.store');
     Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
     Route::get('/orders/{order}', [OrderController::class, 'show'])->name('orders.show');
+
+    Route::post('/addresses', [AddressController::class, 'store'])->name('addresses.store');
 });
 Route::middleware(['auth', 'can:admin'])->prefix('admin')->group(function () {
     Route::resource('products', AdminProductController::class);

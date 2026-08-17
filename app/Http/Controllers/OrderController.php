@@ -17,9 +17,10 @@ class OrderController extends Controller
 
     public function show(Order $order)
     {
-        abort_unless($order->user_id === auth()->id, 403);
+
+        abort_unless($order->user_id === auth()->user()->id, 403);
         $order->load('items');
-        return Inertia::render('orders/show',[
+        return Inertia::render('Orders/Show',[
             'order'=>$order
         ]);
     }

@@ -9,8 +9,13 @@ defineProps<{
     filters: { category?: string };
 }>();
 
-function filterByCategory(slug: string): void {
-    router.get('/', { category: slug }, { preserveState: true });
+function filterByCategory(slug?: string): void {
+    if (slug) {
+        router.get('/', { category: slug }, { preserveState: true });
+    } else {
+        // Clear category filter
+        router.get('/', {}, { preserveState: true });
+    }
 }
 </script>
 
@@ -19,6 +24,13 @@ function filterByCategory(slug: string): void {
     <ShopLayout>
 
         <div class="mb-8 flex flex-wrap gap-2">
+            <button
+                @click="filterByCategory()"
+                class="rounded-full border px-4 py-1.5 text-sm"
+            >
+                All
+            </button>
+
             <button
                 v-for="c in categories"
                 :key="c.id"
@@ -48,6 +60,31 @@ function filterByCategory(slug: string): void {
                     <span>${{ Number(p.base_price).toFixed(2) }}</span>
                 </div>
             </Link>
+        </div>
+
+        <!-- Pagination -->
+        <div class="mt-8 flex justify-center">
+            <nav class="inline-flex items-center space-x-2" aria-label="Pagination">
+                <template v-for="(l, idx) in products.links" :key="idx">
+                    <Link
+                        v-if="l.url"
+                        :href="l.url"
+                        :class="[
+                            'px-3 py-1 rounded border text-sm',
+                            l.active ? 'bg-gray-900 text-white' : 'bg-white text-gray-700'
+                        ]"
+                        :preserve-state="true"
+                    >
+                        <span v-html="l.label" />
+                    </Link>
+
+                    <span
+                        v-else
+                        class="px-3 py-1 rounded border text-sm opacity-50"
+                        v-html="l.label"
+                    />
+                </template>
+            </nav>
         </div>
     </ShopLayout>
 </template>

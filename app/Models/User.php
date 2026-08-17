@@ -49,4 +49,14 @@ class User extends Authenticatable implements PasskeyUser
             /* @end-chisel-2fa */
         ];
     }
+
+
+    public function addresses()
+    {
+        return $this->hasMany(Address::class);
+    }
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
 }
