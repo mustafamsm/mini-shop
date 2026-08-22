@@ -15,6 +15,7 @@ class CartController extends Controller
 
         $cart = $this->currentCart($request);
         $cart->load('items.productVariant.product.images');
+
         return Inertia::render('Cart/Index', ['cart' => $cart]);
     }
 
@@ -25,24 +26,27 @@ class CartController extends Controller
             'quantity' => ['required', 'integer', 'min:1'],
         ]);
         $action->handle($this->currentCart($request), $validated['product_variant_id'], $validated['quantity']);
+
         return back()->with('success', 'Added to cart.');
     }
+
     public function destroy(CartItem $cartItem)
     {
         $cartItem->delete();
+
         return back();
     }
 
     public function update(Request $request, CartItem $cartItem)
     {
         $request->validate([
-            'quantity' => ['required', 'integer', 'min:1']
+            'quantity' => ['required', 'integer', 'min:1'],
 
         ]);
         $cartItem->update($request->only('quantity'));
+
         return back();
     }
-
 
     private function currentCart(Request $request): Cart
     {

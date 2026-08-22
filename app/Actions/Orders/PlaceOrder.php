@@ -17,24 +17,23 @@ class PlaceOrder
             ->with('items.productVariant.product')
             ->FirstOrFail();
 
-
         if ($cart->items->isEmpty()) {
             throw ValidationException::withMessages(['cart' => 'Your cart is empty.']);
         }
 
-
         foreach ($cart->items as $item) {
             if ($item->productVariant->stock < $item->quantity) {
                 throw ValidationException::withMessages([
-                    'cart' => "{$$item->productVariant->product->name} doesn't have enough stock."
+                    'cart' => "{$$item->productVariant->product->name} doesn't have enough stock.",
                 ]);
             }
         }
+
         return DB::transaction(function () use ($cart, $user, $addressId) {
-            $subtotal = $cart->items->sum(fn($item) => $item->productVariant->price() * $item->quantity);
+            $subtotal = $cart->items->sum(fn ($item) => $item->productVariant->price() * $item->quantity);
 
             $order = Order::create([
-                'order_number' => 'ORD-' . strtoupper(uniqid()),
+                'order_number' => 'ORD-'.strtoupper(uniqid()),
                 'user_id' => $user->id,
                 'address_id' => $addressId,
                 'status' => 'pending',
@@ -57,6 +56,7 @@ class PlaceOrder
                 $item->productVariant->decrement('stock', $item->quantity);
             }
             $cart->items()->delete();
+
             return $order;
         });
     }

@@ -25,14 +25,15 @@ class ProductController extends Controller
             'products' => $products,
             'categories' => Category::whereNull('parent_id')->get(),
             'search' => $request->search,
-            'filters'=>$request->only('category')
+            'filters' => $request->only('category'),
         ]);
-
 
     }
 
-    public function show(Product $product){
-        $product->load(['images','variants','category']);
-        return  Inertia::render('Shop/Show',['product'=>$product]);
+    public function show(Product $product)
+    {
+        $product->load(['images', 'variants', 'category']);
+
+        return Inertia::render('Shop/Show', ['product' => $product]);
     }
 }

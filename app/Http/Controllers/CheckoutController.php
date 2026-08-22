@@ -14,15 +14,17 @@ class CheckoutController extends Controller
     {
         $cart = Cart::firstOrCreate(['user_id' => $request->user()->id]);
         $cart->load('items.productVariant.product');
+
         return Inertia::render('Checkout/Index', [
             'cart' => $cart,
-            'addresses' => $request->user()->addresses
+            'addresses' => $request->user()->addresses,
         ]);
     }
 
     public function store(CheckoutRequest $request, PlaceOrder $action)
     {
         $order = $action->handle($request->user(), $request->validated('address_id'));
+
         return redirect()->route('orders.show', $order)->with('success', 'Order placed.');
     }
 }

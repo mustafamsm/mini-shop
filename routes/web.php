@@ -1,9 +1,11 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Admin\ProductVariantController;
 use App\Http\Controllers\CartController;
 use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
@@ -27,13 +29,18 @@ Route::middleware(['auth'])->group(function () {
 
     Route::post('/addresses', [AddressController::class, 'store'])->name('addresses.store');
 });
-Route::middleware(['auth', 'can:admin'])->prefix('admin')->group(function () {
+Route::middleware(['auth', 'can:admin'])->prefix('admin')->name('admin.')->group(function () {
     Route::resource('products', AdminProductController::class);
+    Route::post('products/{product}/variants', [ProductVariantController::class, 'store'])->name('variants.store');
+    Route::patch('variants/{variant}', [ProductVariantController::class, 'update'])->name('variants.update');
+    Route::delete('variants/{variant}', [ProductVariantController::class, 'destroy'])->name('variants.destroy');
+    Route::resource('categories', CategoryController::class)->only(['index', 'store', 'update', 'destroy']);
+
     Route::get('orders', [AdminOrderController::class, 'index'])->name('orders.index');
-    Route::patch('orders/{order}/status', [OrderController::class, 'updateStatus']);
+    Route::patch('orders/{order}/status', [AdminOrderController::class, 'updateStatus'])->name('orders.updateStatus');
     Route::get('dashboard', DashboardController::class)->name('dashboard');
 });
 
 Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle']);
 
-require __DIR__ . '/settings.php';
+require __DIR__.'/settings.php';

@@ -9,13 +9,15 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['product_id', 'sku', 'name', 'price_override', 'stock'])]
 class ProductVariant extends Model
 {
-     use HasFactory;
+    use HasFactory;
+
     protected function casts(): array
     {
         return [
             'price_override' => 'decimal:2',
         ];
     }
+
     public function product()
     {
         return $this->belongsTo(Product::class);
@@ -25,6 +27,7 @@ class ProductVariant extends Model
     {
         return $this->hasMany(OrderItem::class);
     }
+
     public function price(): float
     {
         return $this->price_override ?? $this->product->base_price;

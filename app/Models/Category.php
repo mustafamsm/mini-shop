@@ -9,5 +9,10 @@ use Illuminate\Database\Eloquent\Model;
 #[Fillable(['name', 'slug', 'parent_id'])]
 class Category extends Model
 {
-     use HasFactory;
+    use HasFactory;
+
+    public function products()
+    {
+        return $this->hasMany(Product::class);
+    }
 }
