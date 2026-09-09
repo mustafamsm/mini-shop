@@ -9,6 +9,13 @@ use Inertia\Inertia;
 
 class OrderController extends Controller
 {
+     public function __construct()
+    {
+        $this->middleware('permission:view orders')->only(['index', 'edit']);
+        $this->middleware('permission:create orders')->only(['create', 'store']);
+        $this->middleware('permission:edit orders')->only(['updateStatus']);
+        $this->middleware('permission:delete orders')->only(['destroy']);
+    }
     public function index(Request $request)
     {
         $orders = Order::with('user')
@@ -28,6 +35,6 @@ class OrderController extends Controller
             'status' => ['required', 'in:pending,paid,processing,shipped,delivered,cancelled'],        ]);
         $order->update($validted);
 
-        return back()->with('sucess', 'Order status updated.');
+        return back()->with('toast',['type'=>'success','message'=>'Order status updated.']);
     }
 }

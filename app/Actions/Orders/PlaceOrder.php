@@ -24,7 +24,7 @@ class PlaceOrder
         foreach ($cart->items as $item) {
             if ($item->productVariant->stock < $item->quantity) {
                 throw ValidationException::withMessages([
-                    'cart' => "{$$item->productVariant->product->name} doesn't have enough stock.",
+                    'cart' => "{$item->productVariant->product->name} doesn't have enough stock.",
                 ]);
             }
         }

@@ -4,11 +4,7 @@ export interface Category {
     slug: string
     parent_id: number | null
 }
-export interface ProductImage {
-    id: number
-    path: string
-    sort_order: number
-}
+ 
 
 export interface ProductVariant {
     id: number
@@ -27,7 +23,7 @@ export interface Product {
     description: string | null
     base_price: number
     is_active: boolean
-    images?: ProductImage[]
+    image_urls?: { id: number; url: string; thumb_url: string }[]
     variants?: ProductVariant[]
 }
 

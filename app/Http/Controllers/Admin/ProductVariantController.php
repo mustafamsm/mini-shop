@@ -19,7 +19,7 @@ class ProductVariantController extends Controller
 
         $product->variants()->create($validated);
 
-        return back()->with('success', 'Variant added.');
+        return back()->with('toast', ['type' => 'success', 'message' => 'Variant added.']);
     }
 
     public function update(Request $request, ProductVariant $variant)

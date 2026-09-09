@@ -23,6 +23,10 @@ declare module '@inertiajs/core' {
             flash:{
                 success?:string,
                 error?:string
+                toast?: {
+                    type: 'success' | 'info' | 'warning' | 'error';
+                    message: string;
+                }
             }
             [key: string]: unknown;
         };

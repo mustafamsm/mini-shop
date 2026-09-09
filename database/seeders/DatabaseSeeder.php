@@ -18,16 +18,19 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(PermissionSeeder::class);
+        $this->call(RoleSeeder::class);
 
         User::factory(10)->create();
 
-        User::factory()->create([
+        $user =  User::factory()->create([
             'name' => 'Admin',
             'email' => 'admin@admin.com',
         ]);
+        $user->assignRole('admin');
         Category::factory(6)->create()->each(function ($category) {
             Product::factory(8)->create(['category_id' => $category->id])
-                ->each(fn ($product) => ProductVariant::factory(2)->create(['product_id' => $product->id]));
+                ->each(fn($product) => ProductVariant::factory(2)->create(['product_id' => $product->id]));
         });
     }
 }

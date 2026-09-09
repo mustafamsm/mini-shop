@@ -13,6 +13,18 @@
                 :key="item.id"
                 class="flex items-center justify-between rounded border p-4"
             >
+                <div
+                    class="h-16 w-16 shrink-0 overflow-hidden rounded bg-neutral-100"
+                >
+                    <img
+                        v-if="item.product_variant.product.image_urls?.[0]"
+                        :src="
+                            item.product_variant.product.image_urls[0].thumb_url
+                        "
+                        :alt="item.product_variant.product.name"
+                        class="h-full w-full object-cover"
+                    />
+                </div>
                 <div>
                     <p class="font-medium">
                         {{ item.product_variant.product.name }}
@@ -79,6 +91,7 @@ interface CartItem {
         product: {
             name: string;
             base_price: number | string;
+            image_urls?: { id: number; url: string; thumb_url: string }[];
         };
     };
 }

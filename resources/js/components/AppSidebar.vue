@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, FolderGit2, LayoutGrid } from '@lucide/vue';
+import { BookOpen, FolderGit2, LayoutGrid, ShoppingCart, Layers, Tag, Users, Lock } from '@lucide/vue';
 import AppLogo from '@/components/AppLogo.vue';
 import NavFooter from '@/components/NavFooter.vue';
 import NavMain from '@/components/NavMain.vue';
@@ -15,15 +15,54 @@ import {
     SidebarMenuItem,
 } from '@/components/ui/sidebar';
  import type { NavItem } from '@/types';
- import { dashboard } from '@/routes/admin';
+ import admin, { dashboard } from '@/routes/admin';
+ import { usePermissions } from '@/composables/usePermissions';
+ import { computed } from 'vue';
 
-const mainNavItems: NavItem[] = [
+const { canAccess } = usePermissions();
+
+const allNavItems: (NavItem & { permission?: string })[] = [
     {
         title: 'Dashboard',
-        href: dashboard(),
+        href: dashboard.url(),
         icon: LayoutGrid,
     },
+    {
+        title: 'Products',
+        href: admin.products.index().url,
+        icon: ShoppingCart,
+        permission: 'view products',
+    },
+    {
+        title: 'Categories',
+        href: admin.categories.index().url,
+        icon: Layers,
+        permission: 'view categories',
+    },
+    {
+        title: 'Orders',
+        href: admin.orders.index().url,
+        icon: Tag,
+        permission: 'view orders',
+    },
+    {
+        title: 'Users',
+        href: admin.users.index().url,
+        icon: Users,
+        permission: 'view users',
+    },
+    {
+        title: 'Roles',
+        href: admin.roles.index().url,
+        icon: Lock,
+        permission: 'view roles',
+    },
+
 ];
+
+const mainNavItems = computed(() =>
+    allNavItems.filter(item => !item.permission || canAccess(item.permission))
+);
 
 const footerNavItems: NavItem[] = [
     {

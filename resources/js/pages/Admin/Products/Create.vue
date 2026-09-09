@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
-import { ArrowLeft, Check, CircleDollarSign, FileText, PackagePlus, Tag } from '@lucide/vue';
-import AppLayout from '@/layouts/AppLayout.vue';
+import { ArrowLeft, Check, CircleDollarSign, FileText, ImagePlus, PackagePlus, Tag } from '@lucide/vue';
 import ProductController from '@/actions/App/Http/Controllers/Admin/ProductController';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -9,6 +8,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import AppLayout from '@/layouts/AppLayout.vue';
+import type { Product } from '@/types';
 
 defineProps<{
     categories: {
@@ -24,6 +25,12 @@ const form = useForm({
     base_price: 0,
     is_active: true,
 });
+const imageForm = useForm<{ image: File | null }>({ image: null });
+
+function selectImage(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    imageForm.image = input.files?.[0] ?? null;
+}
 function slugify(): void {
     form.slug = form.name
         .toLowerCase()
@@ -32,7 +39,19 @@ function slugify(): void {
         .replace(/(^-|-$)/g, '');
 }
 function submit(): void {
-    form.submit(ProductController.store());
+    form.submit(ProductController.store(), {
+        onSuccess: (page) => {
+            const product = page.props.product as Product | undefined;
+
+            if (product && imageForm.image) {
+                imageForm.post(`/admin/products/${product.id}/images`, {
+                    forceFormData: true,
+                    preserveScroll: true,
+                    onSuccess: () => imageForm.reset(),
+                });
+            }
+        },
+    });
 }
 </script>
 
@@ -70,6 +89,16 @@ function submit(): void {
                                         <Label for="name">Product name</Label>
                                         <Input id="name" v-model="form.name" placeholder="e.g. Everyday canvas tote" @blur="slugify" />
                                         <p v-if="form.errors.name" class="text-xs text-destructive">{{ form.errors.name }}</p>
+                                    </div>
+
+                                    <div class="space-y-2 sm:col-span-2">
+                                        <Label for="image">Product image</Label>
+                                        <label for="image" class="flex cursor-pointer items-center gap-3 rounded-xl border border-dashed border-border bg-muted/20 px-4 py-4 transition hover:bg-muted/40">
+                                            <div class="rounded-lg bg-[#e6e3ef] p-2.5 text-[#665e85] dark:bg-[#665e85]/25 dark:text-[#bbb2e2]"><ImagePlus class="size-5" /></div>
+                                            <div class="min-w-0"><p class="truncate text-sm font-medium">{{ imageForm.image?.name ?? 'Choose a product image' }}</p><p class="mt-1 text-xs text-muted-foreground">JPG, PNG, or WebP up to 4 MB</p></div>
+                                            <input id="image" type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" @change="selectImage" />
+                                        </label>
+                                        <p v-if="imageForm.errors.image" class="text-xs text-destructive">{{ imageForm.errors.image }}</p>
                                     </div>
 
                                     <div class="space-y-2">

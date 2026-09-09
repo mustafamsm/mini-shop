@@ -10,11 +10,19 @@ use Inertia\Inertia;
 
 class ProductController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     */
+
+    public function __construct()
+    {
+        $this->middleware('permission:view products')->only(['index', 'edit']);
+        $this->middleware('permission:create products')->only(['create', 'store']);
+        $this->middleware('permission:edit products')->only(['update']);
+        $this->middleware('permission:delete products')->only(['destroy']);
+    }
+
+
     public function index()
     {
+        
         return Inertia::render('Admin/Products/Index', [
             'products' => Product::with('category')->latest()->paginate(15),
 
@@ -26,6 +34,7 @@ class ProductController extends Controller
      */
     public function create()
     {
+
         $categories = Category::latest()->get();
 
         return Inertia::render('Admin/Products/Create', [
@@ -38,9 +47,10 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request)
     {
-        Product::create($request->validated());
+        $product = Product::create($request->productData());
 
-        return redirect()->route('admin.products.index')->with('success', 'Product created.');
+        return redirect()->route('admin.products.edit', $product)
+            ->with('toast', ['type' => 'success', 'message' => 'Product created.']);
     }
 
     /**
@@ -53,8 +63,10 @@ class ProductController extends Controller
      */
     public function edit(Product $product)
     {
+        $product->append('image_urls');
+
         return Inertia::render('Admin/Products/Edit', [
-            'product' => $product->load('variants', 'images'),
+            'product' => $product->load('variants'),
             'categories' => Category::all(),
         ]);
     }
@@ -64,10 +76,11 @@ class ProductController extends Controller
      */
     public function update(StoreProductRequest $request, Product $product)
     {
-        $product->update($request->validated());
 
-        return redirect()->route('admin.products.edit', $product)
-            ->with('success', 'Product updated.');
+        $product->update($request->productData());
+
+        return redirect()->route('admin.products.index', $product)
+            ->with('toast', ['type' => 'success', 'message' => 'Product updated.']);
     }
 
     /**
@@ -77,6 +90,6 @@ class ProductController extends Controller
     {
         $product->delete();
 
-        return back()->with('success', 'Product removed.');
+        return back()->with('toast', ['type' => 'success', 'message' => 'Product removed.']);
     }
 }

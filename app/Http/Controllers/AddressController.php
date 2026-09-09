@@ -19,6 +19,6 @@ class AddressController extends Controller
         ]);
         $request->user()->addresses()->create($validated);
 
-        return back()->with('success', 'Address saved.');
+        return back()->with('toast', ['type' => 'success', 'message' => 'Address saved.']);
     }
 }

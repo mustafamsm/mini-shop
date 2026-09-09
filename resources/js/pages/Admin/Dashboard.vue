@@ -138,7 +138,6 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
 import { AlertTriangle, ArrowRight, ArrowUpRight, CircleDollarSign, ClipboardList, Package } from '@lucide/vue';
-import AppLayout from '@/layouts/AppLayout.vue';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -149,6 +148,7 @@ import {
     CardTitle,
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import AppLayout from '@/layouts/AppLayout.vue';
 import type { DashboardStats } from '@/types';
 
 const props = defineProps<{

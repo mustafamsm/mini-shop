@@ -47,10 +47,10 @@ function filterByCategory(slug?: string): void {
                 :key="p.id"
                 :href="`/products/${p.slug}`"
             >
-                <div class="aspect-[4/5] overflow-hidden rounded bg-white">
+                <div class="aspect-4/5 overflow-hidden rounded bg-white">
                     <img
-                        v-if="p.images?.[0]"
-                        :src="p.images[0].path"
+                        v-if="p.image_urls?.[0]"
+                        :src="p.image_urls[0].thumb_url"
                         :alt="p.name"
                         class="h-full w-full object-cover"
                     />

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Arr;
 use Illuminate\Validation\Rule;
 
 class StoreProductRequest extends FormRequest
@@ -12,7 +13,7 @@ class StoreProductRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user()->can('admin');
+        return true;
     }
 
     /**
@@ -35,5 +36,10 @@ class StoreProductRequest extends FormRequest
             'base_price' => ['required', 'numeric', 'min:0'],
             'is_active' => ['boolean'],
         ];
+    }
+
+    public function productData(): array
+    {
+        return Arr::except($this->validated(), 'images');
     }
 }

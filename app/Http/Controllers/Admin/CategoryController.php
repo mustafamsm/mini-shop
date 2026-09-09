@@ -9,6 +9,14 @@ use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
+ public function __construct()
+    {
+        $this->middleware('permission:view categories')->only(['index', 'edit']);
+        $this->middleware('permission:create categories')->only(['create', 'store']);
+        $this->middleware('permission:edit categories')->only(['update']);
+        $this->middleware('permission:delete categories')->only(['destroy']);
+    }
+
     /**
      * Display a listing of the resource.
      */
@@ -34,7 +42,7 @@ class CategoryController extends Controller
         ]);
         Category::create($validated);
 
-        return back()->with('success', 'Category created.');
+        return back()->with('toast', ['type' => 'success', 'message' => 'Category created.']);
     }
 
     /**
@@ -48,7 +56,7 @@ class CategoryController extends Controller
         ]);
         $category->update($validated);
 
-        return back()->with('success', 'Category updated.');
+        return back()->with('toast', ['type' => 'success', 'message' => 'Category updated.']);
     }
 
     public function destroy(Category $category)
@@ -59,6 +67,6 @@ class CategoryController extends Controller
 
         $category->delete();
 
-        return back()->with('success', 'Category removed.');
+        return back()->with('toast', ['type' => 'success', 'message' => 'Category removed.']);
     }
 }

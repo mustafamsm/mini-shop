@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import { Head, useForm, router } from '@inertiajs/vue3';
-import { ArrowLeft, Check, CircleDollarSign, FileText, Package, Plus, Save, Tag, Trash2, Warehouse } from '@lucide/vue';
-import AppLayout from '@/layouts/AppLayout.vue';
-import type { Product } from '@/types';
+import { ArrowLeft, Check, CircleDollarSign, FileText, ImagePlus, Package, Plus, Save, Tag, Trash2, Warehouse } from '@lucide/vue';
+import ProductController from '@/actions/App/Http/Controllers/Admin/ProductController';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import ProductController from '@/actions/App/Http/Controllers/Admin/ProductController';
+import AppLayout from '@/layouts/AppLayout.vue';
+import type { Product } from '@/types';
 import ProductVariantController from '@/actions/App/Http/Controllers/Admin/ProductVariantController';
 const props = defineProps<{
     product: Product;
@@ -37,6 +37,23 @@ function submit(): void {
     form.submit(ProductController.update(props.product.id));
 }
 const newVariant = useForm({ sku: '', name: '', stock: 0 });
+const imageForm = useForm<{ image: File | null }>({ image: null });
+
+function selectImages(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    imageForm.image = input.files?.[0] ?? null;
+}
+
+function uploadImages(): void {
+    imageForm.post(`/admin/products/${props.product.id}/images`, {
+        forceFormData: true,
+        preserveScroll: true,
+        onSuccess: () => {
+            imageForm.reset();
+            imageForm.clearErrors();
+        },
+    });
+}
 
 function addVariant(): void {
     newVariant.submit(ProductVariantController.store(props.product.id), {
@@ -55,6 +72,16 @@ function updateStock(variantId: number, stock: number): void {
 }
 function removeVariant(variantId: number): void {
     router.delete(ProductVariantController.destroy(variantId).url, {
+        preserveScroll: true,
+    });
+}
+
+function removeImage(mediaId: number): void {
+    if (!window.confirm('Remove this product image?')) {
+        return;
+    }
+
+    router.delete(`/admin/products/${props.product.id}/images/${mediaId}`, {
         preserveScroll: true,
     });
 }
@@ -171,7 +198,14 @@ function removeVariant(variantId: number): void {
                                 </div>
                                 <div class="mt-3 flex items-center justify-between gap-3 border-t border-border/60 pt-3">
                                     <Label :for="`stock-${variant.id}`" class="text-xs text-muted-foreground">Stock on hand</Label>
-                                    <Input :id="`stock-${variant.id}`" type="number" min="0" :value="variant.stock" class="h-8 w-24 text-right text-sm" @change="updateStock(variant.id, +($event.target as HTMLInputElement).value)" />
+                                    <Input
+                                        :id="`stock-${variant.id}`"
+                                        :value="variant.stock"
+                                        type="number"
+                                        min="0"
+                                        class="h-8 w-24 text-right text-sm"
+                                        @change="updateStock(variant.id, +($event.target as HTMLInputElement).value)"
+                                    />
                                 </div>
                             </div>
                             <form @submit.prevent="addVariant" class="space-y-3 rounded-xl bg-muted/30 p-4">
@@ -182,6 +216,34 @@ function removeVariant(variantId: number): void {
                                     <Input v-model.number="newVariant.stock" type="number" min="0" placeholder="Stock" class="flex-1" />
                                     <Button type="submit" size="icon" aria-label="Add variant"><Plus class="size-4" /></Button>
                                 </div>
+                            </form>
+                        </CardContent>
+                    </Card>
+
+                    <Card class="h-fit border-border/70 shadow-sm">
+                        <CardHeader>
+                            <div class="flex items-center gap-3">
+                                <div class="rounded-xl bg-[#e6e3ef] p-3 text-[#665e85] dark:bg-[#665e85]/25 dark:text-[#bbb2e2]"><ImagePlus class="size-5" /></div>
+                                <div><CardTitle class="font-display text-2xl">Product images</CardTitle><CardDescription class="mt-1">Upload a JPG, PNG, or WebP image up to 4 MB.</CardDescription></div>
+                            </div>
+                        </CardHeader>
+                        <CardContent class="space-y-4">
+                            <div v-if="product.image_urls?.length" class="grid grid-cols-3 gap-2">
+                                <div v-for="image in product.image_urls" :key="image.id" class="group relative aspect-square">
+                                    <img :src="image.thumb_url" :alt="product.name" class="size-full rounded-lg border border-border/70 object-cover" />
+                                    <Button variant="destructive" size="icon-sm" class="absolute right-1.5 top-1.5 opacity-0 shadow-sm transition-opacity group-hover:opacity-100 focus:opacity-100" aria-label="Remove image" @click="removeImage(image.id)"><Trash2 class="size-3.5" /></Button>
+                                </div>
+                            </div>
+                            <div v-else class="rounded-xl border border-dashed border-border bg-muted/20 px-4 py-6 text-center text-sm text-muted-foreground">No images uploaded yet.</div>
+                            <form @submit.prevent="uploadImages" class="space-y-3">
+                                <label for="images" class="flex cursor-pointer flex-col items-center justify-center rounded-xl border border-dashed border-border bg-muted/20 px-4 py-6 text-center transition hover:bg-muted/40">
+                                    <ImagePlus class="size-6 text-muted-foreground" />
+                                    <span class="mt-2 text-sm font-medium">Choose product image</span>
+                                    <span class="mt-1 text-xs text-muted-foreground">{{ imageForm.image ? imageForm.image.name : 'PNG, JPG, or WebP up to 4 MB' }}</span>
+                                    <input id="images" type="file" accept="image/jpeg,image/png,image/webp" class="sr-only" @change="selectImages" />
+                                </label>
+                                <p v-if="imageForm.errors.image" class="text-xs text-destructive">{{ imageForm.errors.image }}</p>
+                                <Button type="submit" variant="outline" class="w-full" :disabled="imageForm.processing || !imageForm.image"><ImagePlus class="size-4" />{{ imageForm.processing ? 'Uploading...' : 'Upload image' }}</Button>
                             </form>
                         </CardContent>
                     </Card>

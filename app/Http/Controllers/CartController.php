@@ -14,7 +14,10 @@ class CartController extends Controller
     {
 
         $cart = $this->currentCart($request);
-        $cart->load('items.productVariant.product.images');
+        $cart->load('items.productVariant.product');
+        $cart->items->each(
+            fn ($item) => $item->productVariant->product->append('image_urls')
+        );
 
         return Inertia::render('Cart/Index', ['cart' => $cart]);
     }
@@ -27,7 +30,7 @@ class CartController extends Controller
         ]);
         $action->handle($this->currentCart($request), $validated['product_variant_id'], $validated['quantity']);
 
-        return back()->with('success', 'Added to cart.');
+        return back()->with('toast', ['type' => 'success', 'message' => 'Added to cart.']);
     }
 
     public function destroy(CartItem $cartItem)
@@ -50,8 +53,6 @@ class CartController extends Controller
 
     private function currentCart(Request $request): Cart
     {
-        return $request->user()
-            ? Cart::firstOrCreate(['user_id' => $request->user()->id])
-            : Cart::firstOrCreate(['session_id' => $request->session()->getId()]);
+        return Cart::resolveForRequest($request);
     }
 }

@@ -25,6 +25,6 @@ class CheckoutController extends Controller
     {
         $order = $action->handle($request->user(), $request->validated('address_id'));
 
-        return redirect()->route('orders.show', $order)->with('success', 'Order placed.');
+        return redirect()->route('orders.show', $order)->with('toast', ['type' => 'success', 'message' => 'Order placed.']);
     }
 }

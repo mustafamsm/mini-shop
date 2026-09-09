@@ -2,6 +2,9 @@
 import { Head, router } from '@inertiajs/vue3';
 import AppLayout from '@/layouts/AppLayout.vue';
 import OrderController from '@/actions/App/Http/Controllers/Admin/OrderController';
+import { usePermissions } from '@/composables/usePermissions';
+
+const { canAccess } = usePermissions();
 
 interface Order {
     id: number;
@@ -58,6 +61,7 @@ function updateStatus(order: Order, status: string): void {
                         <td class="p-3">${{ Number(o.total).toFixed(2) }}</td>
                         <td class="p-3">
                             <select
+                                v-if="canAccess('edit orders')"
                                 :value="o.status"
                                 @change="
                                     updateStatus(

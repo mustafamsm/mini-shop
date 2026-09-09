@@ -13,13 +13,15 @@ class ProductController extends Controller
     {
 
         $products = Product::query()
-            ->with(['images', 'variants'])
+            ->with(['variants'])
             ->where('is_active', true)
             ->when($request->category, fn ($q, $slug) => $q->whereHas('category', fn ($q2) => $q2->where('slug', $slug))
             )->when($request->search, fn ($q, $search) => $q->where('name', 'like', "%{$search}%")
             )->latest()
             ->paginate(12)
             ->withQueryString();
+
+        $products->getCollection()->transform(fn ($p) => tap($p)->setAttribute('image_urls', $p->image_urls));
 
         return Inertia::render('Shop/index', [
             'products' => $products,
@@ -32,8 +34,8 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        $product->load(['images', 'variants', 'category']);
+        $product->load(['variants', 'category']);
 
-        return Inertia::render('Shop/Show', ['product' => $product]);
+        return Inertia::render('Shop/Show', ['product' => $product->append('image_urls')]);
     }
 }

@@ -4,21 +4,37 @@ import { ref } from 'vue'
 import ShopLayout from '@/layouts/ShopLayout.vue'
 import CartController from '@/actions/App/Http/Controllers/CartController'
 import type { Product } from '@/types/models'
+import { toast } from 'vue-sonner'
 
 const props = defineProps<{ product: Product }>()
+
 
 const selectedVariantId = ref(props.product.variants?.[0]?.id ?? null)
 const quantity = ref(1)
 
 function addToCart() {
   if (!selectedVariantId.value) {
+    toast.error('Please select a product variant.')
+    return 
+  }
+
+  const selectedVariant = props.product.variants?.find(v => v.id === selectedVariantId.value)
+
+  if (selectedVariant && quantity.value > selectedVariant.stock) {
+    toast.error('Quantity exceeds available stock.')
     return
-}
+  }
 
   router.post(CartController.store().url, {
     product_variant_id: selectedVariantId.value,
     quantity: quantity.value,
-  }, { preserveScroll: true })
+  }, {
+    preserveScroll: true,
+    
+    onError: () => {
+      toast.error('Unable to add item to cart.')
+    },
+  })
 }
 </script>
 
@@ -27,7 +43,7 @@ function addToCart() {
   <ShopLayout>
     <div class="grid grid-cols-2 gap-12">
       <div class="aspect-square bg-white rounded overflow-hidden">
-        <img v-if="product.images?.[0]" :src="product.images[0].path" :alt="product.name" class="w-full h-full object-cover" />
+        <img v-if="product.image_urls?.[0]" :src="product.image_urls[0].url" :alt="product.name" class="w-full h-full object-cover" />
       </div>
       <div>
         <h1 class="text-3xl font-semibold mb-2">{{ product.name }}</h1>
