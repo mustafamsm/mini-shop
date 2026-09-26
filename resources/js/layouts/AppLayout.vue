@@ -13,6 +13,6 @@ const { breadcrumbs = [] } = defineProps<{
 <template>
     <Toaster richColors position="top-right" />
     <AppLayout :breadcrumbs="breadcrumbs">
-        <slot />
+         <slot />
     </AppLayout>
 </template>

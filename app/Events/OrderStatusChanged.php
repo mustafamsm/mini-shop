@@ -2,6 +2,7 @@
 
 namespace App\Events;
 
+use App\Models\Order;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -15,7 +16,7 @@ class OrderStatusChanged
     /**
      * Create a new event instance.
      */
-    public function __construct()
+    public function __construct(public Order $order, public string $oldStatus)
     {
         //
     }

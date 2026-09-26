@@ -3,6 +3,7 @@
 use App\Http\Controllers\AddressController;
 use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Admin\DashboardController;
+use App\Http\Controllers\Admin\NotificationController;
 use App\Http\Controllers\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Admin\ProductVariantController;
@@ -49,6 +50,10 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
 
     Route::get('roles', [RoleController::class, 'index'])->name('roles.index');
     Route::patch('roles/{role}', [RoleController::class, 'update'])->name('roles.update');
+
+Route::get('notifications', [NotificationController::class, 'index'])->name('notifications.index');
+Route::post('notifications/{id}/read', [NotificationController::class, 'markAsRead'])->name('notifications.read');
+Route::post('notifications/read-all', [NotificationController::class, 'markAllAsRead'])->name('notifications.readAll');
 
 });
 

@@ -42,6 +42,10 @@
         </x-inertia::head>
     </head>
     <body class="font-sans antialiased">
+        {{-- <div id="global-page-loader" class="page-loader" role="status" aria-live="polite" aria-label="Loading" aria-hidden="true">
+            <span class="page-loader__spinner" aria-hidden="true"></span>
+            <span class="sr-only">Loading</span>
+        </div> --}}
         <x-inertia::app />
     </body>
 </html>

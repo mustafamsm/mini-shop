@@ -4,6 +4,7 @@ import AppLayout from '@/layouts/AppLayout.vue';
 import AuthLayout from '@/layouts/AuthLayout.vue';
 import SettingsLayout from '@/layouts/settings/Layout.vue';
 import { initializeFlashToast } from '@/lib/flashToast';
+import { router } from '@inertiajs/vue3';
 
 const appName = import.meta.env.VITE_APP_NAME || 'Laravel';
 
@@ -25,6 +26,16 @@ createInertiaApp({
         color: '#4B5563',
     },
 });
+
+const pageLoader = document.getElementById('global-page-loader');
+
+function setPageLoading(isLoading: boolean): void {
+    pageLoader?.classList.toggle('page-loader--visible', isLoading);
+    pageLoader?.setAttribute('aria-hidden', String(!isLoading));
+}
+
+router.on('start', () => setPageLoading(true));
+router.on('finish', () => setPageLoading(false));
 
 
 // This will set light / dark mode on page load...

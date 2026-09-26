@@ -2,7 +2,13 @@
 
 namespace App\Providers;
 
+use App\Events\OrderPlaced;
+use App\Events\OrderStatusChanged;
 use App\Listeners\MergeGuestCartOnLogin;
+use App\Listeners\NotifyAdminOfNewOrder;
+use App\Listeners\RestoreStockOnCancellation;
+use App\Listeners\SendOrderConfirmationEmail;
+use App\Listeners\SendOrderStatusEmail;
 use Carbon\CarbonImmutable;
 use Illuminate\Auth\Events\Login;
 use Illuminate\Support\Facades\Date;
@@ -30,6 +36,13 @@ class AppServiceProvider extends ServiceProvider
         $this->configureDefaults();
 
         Event::listen(Login::class, MergeGuestCartOnLogin::class);
+
+
+        Event::listen(OrderStatusChanged::class, SendOrderStatusEmail::class);
+        Event::listen(OrderStatusChanged::class, RestoreStockOnCancellation::class);
+
+        Event::listen(OrderPlaced::class, SendOrderConfirmationEmail::class);
+        Event::listen(OrderPlaced::class, NotifyAdminOfNewOrder::class);
     }
 
     /**
@@ -43,14 +56,15 @@ class AppServiceProvider extends ServiceProvider
             app()->isProduction(),
         );
 
-        Password::defaults(fn (): ?Password => app()->isProduction()
-            ? Password::min(12)
+        Password::defaults(
+            fn(): ?Password => app()->isProduction()
+                ? Password::min(12)
                 ->mixedCase()
                 ->letters()
                 ->numbers()
                 ->symbols()
                 ->uncompromised()
-            : null,
+                : null,
         );
     }
 }

@@ -125,17 +125,21 @@
 
                 <button
                     @click="placeOrder"
-                    :disabled="!selectedAddressId || placeOrderForm.processing"
+                    :disabled="!selectedAddressId || placeOrderForm.processing || hasStockIssue"
                     class="mt-6 w-full rounded bg-black px-6 py-3 text-white disabled:opacity-40"
                 >
                     Place order
                 </button>
 
+                <p v-if="hasStockIssue" class="mt-2 text-sm text-red-600">
+                    One or more items exceed the available stock.
+                </p>
+
                 <p
-                    v-if="placeOrderForm.errors.cart"
+                    v-else-if="(placeOrderForm.errors as Record<string, string[] | string>).cart"
                     class="mt-2 text-sm text-red-600"
                 >
-                    {{ placeOrderForm.errors.cart }}
+                    {{ (placeOrderForm.errors as Record<string, string[] | string>).cart }}
                 </p>
             </div>
         </div>
@@ -144,10 +148,11 @@
 
 <script setup lang="ts">
 import { Head, useForm } from '@inertiajs/vue3';
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import ShopLayout from '@/layouts/ShopLayout.vue';
 import AddressController from '@/actions/App/Http/Controllers/AddressController';
 import CheckoutController from '@/actions/App/Http/Controllers/CheckoutController';
+import { toast } from 'vue-sonner';
 
 interface Address {
     id: number;
@@ -161,6 +166,8 @@ interface CartItem {
     id: number;
     quantity: number;
     product_variant: {
+        id: number;
+        stock: number;
         price_override: number | null;
         product: {
             name: string;
@@ -175,6 +182,12 @@ const props = defineProps<{
 }>();
 const selectedAddressId = ref<number | null>(props.addresses[0]?.id ?? null);
 const showAddressForm = ref(props.addresses.length === 0);
+
+const hasStockIssue = computed(() =>
+    props.cart.items.some(
+        (item) => item.quantity > (item.product_variant?.stock ?? 0),
+    ),
+);
 
 const addressForm = useForm({
     label: '',
@@ -200,8 +213,28 @@ const placeOrderForm = useForm({
     address_id: selectedAddressId.value,
 });
 function placeOrder() {
+    if (hasStockIssue.value) {
+        toast.error('One or more items exceed the available stock.');
+        return;
+    }
+
+    if (!selectedAddressId.value) {
+        toast.error('Please select a shipping address.');
+        return;
+    }
+
     placeOrderForm.address_id = selectedAddressId.value;
-    placeOrderForm.submit(CheckoutController.store());
+    placeOrderForm.submit(CheckoutController.store(), {
+        preserveScroll: true,
+        onError: (errors) => {
+            const validationErrors = Object.values(errors ?? {}).flat().filter(Boolean);
+            const message = validationErrors.length
+                ? validationErrors.join(' ')
+                : 'Unable to place the order.';
+
+            toast.error(message);
+        },
+    });
 }
 
 function itemPrice(item: CartItem): number {

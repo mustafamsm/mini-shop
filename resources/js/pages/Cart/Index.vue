@@ -38,18 +38,19 @@
                     <input
                         type="number"
                         :value="item.quantity"
-                        min="1"
+                        :min="1"
+                        :max="item.product_variant.stock ?? 1"
                         class="w-16 rounded border px-2 py-1"
                         @change="
                             updateQuantity(
                                 item,
-                                +($event.target as HTMLInputElement).value,
+                                Number(($event.target as HTMLInputElement).value),
                             )
                         "
                     />
                     <span class="w-20 text-right"
                         >${{
-                            (itemPrice(item) * item.quantity).toFixed(2)
+                            (itemPrice(item) * Number(item.quantity)).toFixed(2)
                         }}</span
                     >
                     <button
@@ -81,12 +82,14 @@ import { Head, router } from '@inertiajs/vue3';
 import ShopLayout from '@/layouts/ShopLayout.vue';
 import CartController from '@/actions/App/Http/Controllers/CartController';
 import CheckoutController from '@/actions/App/Http/Controllers/CheckoutController';
+import { toast } from 'vue-sonner';
 
 interface CartItem {
     id: number;
     quantity: number | string;
     product_variant: {
         id: number;
+        stock: number;
         price_override: number | string | null;
         product: {
             name: string;
@@ -120,14 +123,32 @@ function subtotal(): number {
 }
 
 function updateQuantity(item: CartItem, quantity: number) {
+    const maxAllowed = item.product_variant.stock ?? 0;
+
     if (quantity < 1) {
+        toast.error('Quantity must be at least 1.');
         return;
+    }
+
+    if (quantity > maxAllowed) {
+        toast.error(`Only ${maxAllowed} item(s) left in stock.`);
+        quantity = maxAllowed;
     }
 
     router.patch(
         CartController.update(item.id).url,
         { quantity },
-        { preserveScroll: true },
+        {
+            preserveScroll: true,
+            onError: (errors) => {
+                const validationErrors = Object.values(errors ?? {}).flat().filter(Boolean);
+                const message = validationErrors.length
+                    ? validationErrors.join(' ')
+                    : 'Unable to update quantity.';
+
+                toast.error(message);
+            },
+        },
     );
 }
 function removeItem(item: CartItem) {

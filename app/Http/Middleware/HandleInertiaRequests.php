@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Cart;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
@@ -45,6 +46,11 @@ class HandleInertiaRequests extends Middleware
             'flash' => [
                 'toast' => fn () => $request->session()->get('toast'),
             ],
+            'cart' => fn () => tap(Cart::resolveForRequest($request)->load('items.productVariant.product'), function (Cart $cart): void {
+                $cart->items->each(
+                    fn ($item) => $item->productVariant?->product?->append('image_urls')
+                );
+            }),
             'sidebarOpen' => ! $request->hasCookie('sidebar_state') || $request->cookie('sidebar_state') === 'true',
         ];
     }
