@@ -4,6 +4,7 @@ namespace App\Listeners;
 
 use App\Events\OrderPlaced;
 use App\Models\User;
+use App\Notifications\NewOrderNotification;
 
 class NotifyAdminOfNewOrder
 {
@@ -25,7 +26,7 @@ class NotifyAdminOfNewOrder
             ->unique('id');
 
         foreach ($admins as $user) {
-            $user->notify(new \App\Notifications\NewOrderNotification($event->order));
+            $user->notify(new NewOrderNotification($event->order));
         }
     }
 }

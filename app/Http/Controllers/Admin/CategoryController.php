@@ -9,7 +9,7 @@ use Inertia\Inertia;
 
 class CategoryController extends Controller
 {
- public function __construct()
+    public function __construct()
     {
         $this->middleware('permission:view categories')->only(['index', 'edit']);
         $this->middleware('permission:create categories')->only(['create', 'store']);

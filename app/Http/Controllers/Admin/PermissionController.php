@@ -17,9 +17,10 @@ class PermissionController extends Controller
         $this->middleware('permission:edit permissions')->only(['update']);
         $this->middleware('permission:delete permissions')->only(['destroy']);
     }
+
     public function index()
     {
-         return Inertia::render('Admin/Permissions/Index', [
+        return Inertia::render('Admin/Permissions/Index', [
             'permissions' => Permission::with('roles')->withCount('roles')->get(),
             'roles' => Role::pluck('name'),
         ]);
@@ -35,16 +36,18 @@ class PermissionController extends Controller
 
         return redirect()->back()->with('toast', ['type' => 'success', 'message' => 'Permission created successfully.']);
     }
+
     public function update(Request $request, Permission $permission)
     {
         $request->validate([
-            'name' => 'required|string|unique:permissions,name,' . $permission->id,
+            'name' => 'required|string|unique:permissions,name,'.$permission->id,
         ]);
 
         $permission->update(['name' => $request->name]);
 
         return redirect()->back()->with('toast', ['type' => 'success', 'message' => 'Permission updated successfully.']);
     }
+
     public function destroy(Permission $permission)
     {
         if ($permission->roles()->count() > 0) {
@@ -54,15 +57,17 @@ class PermissionController extends Controller
 
         return redirect()->back()->with('toast', ['type' => 'success', 'message' => 'Permission deleted successfully.']);
     }
+
     public function toggleRole(Request $request, Permission $permission)
     {
 
-    $validated = $request->validate([
-        'role' => 'required|string|exists:roles,name',
-        'enabled' => 'required|boolean',
-    ]);
+        $validated = $request->validate([
+            'role' => 'required|string|exists:roles,name',
+            'enabled' => 'required|boolean',
+        ]);
         $role = Role::findByName($validated['role']);
         $validated['enabled'] ? $role->givePermissionTo($permission) : $role->revokePermissionTo($permission);
+
         return back()->with('toast', ['type' => 'success', 'message' => 'Permission updated successfully.']);
     }
 }

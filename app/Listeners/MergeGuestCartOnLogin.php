@@ -3,9 +3,6 @@
 namespace App\Listeners;
 
 use App\Actions\Cart\MergeGuestCart;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Auth\Events\Login;
 use Illuminate\Http\Request;
 
 class MergeGuestCartOnLogin

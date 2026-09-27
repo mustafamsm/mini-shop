@@ -4,22 +4,21 @@ namespace App\Http\Controllers;
 
 use App\Models\Category;
 use App\Models\Product;
+use App\Repositories\ProductRepository;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class ProductController extends Controller
 {
+    public function __construct(private ProductRepository $productRepository) {}
+
     public function index(Request $request)
     {
 
-        $products = Product::query()
-            ->with(['variants'])
-            ->where('is_active', true)
-            ->when($request->category, fn ($q, $slug) => $q->whereHas('category', fn ($q2) => $q2->where('slug', $slug))
-            )->when($request->search, fn ($q, $search) => $q->where('name', 'like', "%{$search}%")
-            )->latest()
-            ->paginate(12)
-            ->withQueryString();
+        $products = $this->productRepository->activeCatalog(
+            categorySlug: $request->category,
+            search: $request->search
+        );
 
         $products->getCollection()->transform(fn ($p) => tap($p)->setAttribute('image_urls', $p->image_urls));
 

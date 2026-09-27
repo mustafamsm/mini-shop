@@ -10,7 +10,6 @@ use Inertia\Inertia;
 
 class ProductController extends Controller
 {
-
     public function __construct()
     {
         $this->middleware('permission:view products')->only(['index', 'edit']);
@@ -19,10 +18,9 @@ class ProductController extends Controller
         $this->middleware('permission:delete products')->only(['destroy']);
     }
 
-
     public function index()
     {
-        
+
         return Inertia::render('Admin/Products/Index', [
             'products' => Product::with('category')->latest()->paginate(15),
 

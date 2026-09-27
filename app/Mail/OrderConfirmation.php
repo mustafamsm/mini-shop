@@ -4,7 +4,6 @@ namespace App\Mail;
 
 use App\Models\Order;
 use Illuminate\Bus\Queueable;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Attachment;
 use Illuminate\Mail\Mailables\Content;
@@ -22,11 +21,13 @@ class OrderConfirmation extends Mailable
     {
         //
     }
+
     public function build()
     {
         return $this->subject("Order Confirmation — {$this->order->order_number}")
             ->markdown('emails.orders.confirmation', ['order' => $this->order->load('items')]);
     }
+
     /**
      * Get the message envelope.
      */

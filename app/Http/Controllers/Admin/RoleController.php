@@ -14,30 +14,27 @@ class RoleController extends Controller
     {
         $this->middleware('permission:view roles');
     }
+
     public function index()
     {
         return Inertia::render('Admin/Roles/Index', [
-            'roles' => \Spatie\Permission\Models\Role::with('permissions')->get(),
-            'permissions'=> Permission::pluck('name')
+            'roles' => Role::with('permissions')->get(),
+            'permissions' => Permission::pluck('name'),
         ]);
     }
+
     public function update(Request $request, Role $role)
-        {
-            $request->validate([
-                'permissions' => 'array',
-                'permissions.*' => 'string|exists:permissions,name',
-            ]);
+    {
+        $request->validate([
+            'permissions' => 'array',
+            'permissions.*' => 'string|exists:permissions,name',
+        ]);
 
-               
+        $role->syncPermissions($request->input('permissions', []));
 
-
-            $role->syncPermissions($request->input('permissions', []));
-
-            return redirect()->back()->with('toast', [
-                'type' => 'success',
-                'message' => 'Permissions updated successfully.',
-            ]);
-        }
-
-
+        return redirect()->back()->with('toast', [
+            'type' => 'success',
+            'message' => 'Permissions updated successfully.',
+        ]);
+    }
 }

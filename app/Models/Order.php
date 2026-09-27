@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\OrderStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 
@@ -19,7 +20,10 @@ use Illuminate\Database\Eloquent\Model;
 class Order extends Model
 {
 
-    
+protected function casts():array
+{
+    return ['status' => OrderStatus::class];
+}
     public function user()
     {
         return $this->belongsTo(User::class);

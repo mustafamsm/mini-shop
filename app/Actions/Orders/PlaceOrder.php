@@ -30,7 +30,7 @@ class PlaceOrder
                     ->lockForUpdate()
                     ->first();
 
-                if (!$variant || $variant->stock < $item->quantity) {
+                if (! $variant || $variant->stock < $item->quantity) {
                     throw ValidationException::withMessages([
                         'cart' => "{$item->productVariant->product->name} doesn't have enough stock.",
                     ]);
@@ -42,7 +42,7 @@ class PlaceOrder
             $subtotal = $cart->items->sum(fn ($item) => $item->productVariant->price() * $item->quantity);
 
             $order = Order::create([
-                'order_number' => 'ORD-' . strtoupper(uniqid()),
+                'order_number' => 'ORD-'.strtoupper(uniqid()),
                 'user_id' => $user->id,
                 'address_id' => $addressId,
                 'status' => 'pending',

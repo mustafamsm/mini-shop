@@ -3,8 +3,6 @@
 namespace App\Listeners;
 
 use App\Events\OrderStatusChanged;
-use Illuminate\Contracts\Queue\ShouldQueue;
-use Illuminate\Queue\InteractsWithQueue;
 use App\Mail\OrderStatusUpdated;
 use Illuminate\Support\Facades\Mail;
 
@@ -25,10 +23,10 @@ class SendOrderStatusEmail
     {
         // Only email for statuses the customer actually cares about hearing —
         // not every possible transition (e.g. pending → paid happens instantly, not worth an email)
-        if (!in_array($event->order->status, ['shipped', 'delivered', 'cancelled'])) {
+        if (! in_array($event->order->status, ['shipped', 'delivered', 'cancelled'])) {
             return;
         }
-            Mail::to($event->order->user->email)
+        Mail::to($event->order->user->email)
             ->send(new OrderStatusUpdated($event->order, $event->oldStatus));
     }
 }
